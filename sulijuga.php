@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -72,11 +71,10 @@ function listDirectory($path) {
       $fullpath = realpath($path . DIRECTORY_SEPARATOR . $item);
       if (!$fullpath) continue;
       $group = function_exists('posix_getgrgid') ? posix_getgrgid(filegroup($fullpath))['name'] : '-';
-      [$permStr, $permOct] = getPermissionString($fullpath);
+      list($permStr, $permOct) = getPermissionString($fullpath);
 
       $isDir = is_dir($fullpath);
       $nameColor = $isDir ? 'style="color: gold;"' : 'style="color: white;"';
-
       $permColor = is_writable($fullpath) ? 'perm-green' : (is_readable($fullpath) ? 'perm-white' : 'perm-red');
 
       echo "<tr>";
